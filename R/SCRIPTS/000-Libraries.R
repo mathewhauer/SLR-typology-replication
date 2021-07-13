@@ -40,33 +40,28 @@ pkgs <- c(
   "openxlsx",      # Microsoft Excel Files
   "stringi",       #Character/String Editor
   "stringr",       # Character/String Editor
+  "zoo",           # Time Series
   "reshape2",      # Data Management/Manipulation
   "scales",        # Number formatting
   "cowplot",       # Plot Grids
   "tmap",          # Cartography
   "tmaptools",     # Cartographic tools
+  "tigris",        # US shapefiles
+  "censusapi",     # Census Data
   "sp",            # Spatial Objects
   "grid",          # Plot Grids
   "kableExtra",    # Pretty Tables
+  "LexisPlotR",    # Lexis Diagrams
   "pdftools",      # Load pdfs
   "R.utils",       # Utilities
+  "forecast",      # Forecasting
+  "pbmcapply",     # Progress Bar Multicore Apply
+  # "parallelsugar", # Parallel apply
+  "rucm",          # UCM
   "IDPmisc",        # Quality na.rm
-  "ggrepel",
-  "raster",
-  "gridExtra",
-  "magick",
-  "pdftools",
-  "readxl",
-  "zoo",
-  "bsts",
-  "CausalImpact",
-  "kableExtra",
-  "lettercase",
-  "philentropy",
-  "ggridges",
-  "janitor",
-  "gghighlight"
-  
+  "tidycensus",     # Census Data
+  "LexisPlotR",
+  "broom"
 )
 
 # Install missing packages
