@@ -61,7 +61,8 @@ pkgs <- c(
   "IDPmisc",        # Quality na.rm
   "tidycensus",     # Census Data
   "LexisPlotR",
-  "broom"
+  "broom",
+  "BAMMtools"
 )
 
 # Install missing packages

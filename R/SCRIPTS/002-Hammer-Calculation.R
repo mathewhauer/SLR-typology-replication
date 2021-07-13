@@ -1,16 +1,16 @@
 
 # Historic census data pulled.
-historic <- read.xlsx("DATA/historicaldat.xlsx", sheet =1) %>%
+historic <- read.xlsx("./R/DATA/historicaldat.xlsx", sheet =1) %>%
   mutate_all(funs(replace(., is.na(.), 0)))
 
-# download.file("https://www2.census.gov/geo/docs/reference/codes/national_county.txt", "DATA/national_county.txt")
-fips <- read_csv("DATA/national_county.txt", col_names=FALSE) %>%
+# download.file("https://www2.census.gov/geo/docs/reference/codes/national_county.txt", "./R/DATA/national_county.txt")
+fips <- read_csv("./R/DATA/national_county.txt", col_names=FALSE) %>%
   filter(X2<=56) # getting rid of PR, Guam, etc.
 
 # Downloading the county-level population projections
-# download.file("https://osf.io/uh5sj/download/", destfile = "DATA/SSP_asrc.zip", mode = 'wb')
-# unzip(zipfile='DATA/SSP_asrc.zip', exdir = "DATA") 
-controls <- read_csv("DATA/SSP_asrc.csv") %>%
+# download.file("https://osf.io/uh5sj/download/", destfile = "./R/DATA/SSP_asrc.zip", mode = 'wb')
+# unzip(zipfile='./R/DATA/SSP_asrc.zip', exdir = "./R/DATA")
+controls <- read_csv("./R/DATA/SSP_asrc.csv") %>%
   group_by(YEAR, STATE, COUNTY, GEOID) %>%
   dplyr::summarise(SSP1 = sum(SSP1),
                    SSP2 = sum(SSP2),
@@ -19,11 +19,11 @@ controls <- read_csv("DATA/SSP_asrc.csv") %>%
                    SSP5 = sum(SSP5)) %>%
   dplyr::select(FIPS = GEOID, everything())
 
-files <- paste0("DATA-PROCESSED/ACS2013//", list.files(path = "./DATA-PROCESSED/ACS2013/"))
+files <- paste0("./R/DATA/ACS2013//", list.files(path = "./R/DATA/ACS2013/"))
 temp <- lapply(files, read_rds)
 dat_acs <- rbindlist( temp ) 
 
-dat_decen <- read_rds("DATA-PROCESSED/census2010dat.RDS")
+dat_decen <- read_rds("./R/DATA/census2010dat.RDS")
 
 data_sum <-  group_by(dat_acs, FIPS) %>% # grouping the data by FIPS code
   summarise(t1939 = sum(a1939), 
@@ -63,9 +63,10 @@ joinedt <- joined %>% # creating a tall dataset for the modeling
 
 fitted_models_decline <- joinedt %>%
   filter(GROWTH == "decline") %>%
-  group_by(GEOID) %>%
-  do(model = lm(log(HU) ~ YEAR, data = .)) %>% #exponential regression for areas projected to decline.
-  tidy(model) %>%
+  ungroup() %>%
+  nest_by(GEOID) %>%
+  mutate(model = list(lm(HU ~ YEAR, data = data))) %>%
+  summarise(tidy(model)) %>%
   dplyr::select(-p.value, -statistic, -std.error) %>% # selecting just the coefficients
   spread(term, estimate) %>% # putting them on the same line
   left_join(., joined, by = "GEOID") %>% # rejoining with the estimates
@@ -84,9 +85,10 @@ fitted_models_decline <- joinedt %>%
 
 fitted_models_growth <- joinedt %>%
   filter(GROWTH == "grow") %>%
-  group_by(GEOID) %>%
-  do(model = lm(HU ~ YEAR, data = .)) %>%
-  tidy(model) %>%
+  ungroup() %>%
+  nest_by(GEOID) %>%
+  mutate(model = list(lm(HU ~ YEAR, data = data))) %>%
+  summarise(tidy(model)) %>%
   dplyr::select(-p.value, -statistic, -std.error) %>%
   spread(term, estimate) %>%
   left_join(., joined, by = "GEOID")%>%
@@ -109,7 +111,7 @@ fitted_models <- rbind(fitted_models_decline, fitted_models_growth) %>%
          p2000 = (hat_2000+ adjfactor)*pphu + P043001) %>%
   dplyr::select(GEOID, p2000, p2010, p2020:p2100)
 
-areas <- read_csv("DATA/County_Population.csv") %>%
+areas <- read_csv("./R/DATA/County_Population.csv") %>%
   separate(ID, c("State", "Drop", "GEOID"), sep = "_")%>%
   dplyr::select(State, PLACE_NAME, FIPS=GEOID)%>%
   left_join(., historic)
@@ -157,12 +159,10 @@ controlled <- controlled %>%
          COUNTY = substr(GEOID,3,5)) %>%
   filter(FIPS %in% unique(areas$FIPS))
 
+# Checking the sums
 z <- controlled %>%
   group_by(YEAR) %>%
   dplyr::summarise(SSP2 = sum(SSP2))
 
-z2 <- controlled %>%
-  filter(FIPS == "15001")
 
-
-write_csv(controlled, "DATA-PROCESSED/blkgrp_projections_20002100_controlled.csv")
+write_csv(controlled, "./R/DATA/blkgrp_projections_20002100_controlled.csv")
