@@ -2,7 +2,10 @@
 ## @knitr MapFigure
 
 source("./R/SCRIPTS/000-Libraries.R")
-## Loading in the Projections from Scott Kulpt and Climate Central
+## Loading in the Projections from Scott Kulp and Climate Central
+
+unzip("R/DATA/SLR_pop_atrisk.zip", exdir = "R/DATA/DAT/")
+
 files <- paste0("R/DATA/Dat/", list.files(path = "./R/DATA/Dat/",pattern = 'rcp45\\.csv'))
 files <- files[files != "R/DATA/Dat/BlockgroupProjectedEAE.v3.LA.rcp45.csv" ]
 files2 <- read_csv("./R/DATA/Dat/BlockgroupProjectedEAE.v3.LA.rcp45.csv") %>%
