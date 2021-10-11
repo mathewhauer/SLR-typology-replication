@@ -5,7 +5,9 @@
 
 `national_county.txt` - contains a list of all US counties and their FIPS codes.
 
-Proprietary data from Climate Central are required to complete the analysis. Some scripts will download data that are too large to store on GitHub.
+`SLR_pop_atrisk.zip` - contains our results that use proprietary data from Climate Central. 
+
+Beware: Some scripts will download data that are too large to store on GitHub.
 
 
 ## License
